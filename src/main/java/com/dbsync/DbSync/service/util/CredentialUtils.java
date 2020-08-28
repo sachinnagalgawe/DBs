@@ -7,10 +7,11 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.dbsync.DbSync.service.impl.CalendarServiceImpl;
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
@@ -23,9 +24,13 @@ import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.docs.v1.DocsScopes;
 
+/**
+ * Credentials utility class
+ */
 @Component
-//@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class CredentialUtils {
+
+	private static final Logger logger = LoggerFactory.getLogger(CredentialUtils.class);
 
 	private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 	private static final String TOKENS_DIRECTORY_PATH = "tokens";
@@ -45,6 +50,7 @@ public class CredentialUtils {
 	 * @throws IOException If the credentials.json file cannot be found.
 	 */
 	public static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
+		logger.info("Getting credentials for login");
 		SCOPES.addAll(CalendarScopes.all());
 		SCOPES.addAll(DocsScopes.all());
 
@@ -55,7 +61,6 @@ public class CredentialUtils {
 		}
 		GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
 
-		System.out.println("Getting access");
 		// Build flow and trigger user authorization request.
 		GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(HTTP_TRANSPORT, JSON_FACTORY,
 				clientSecrets, SCOPES)
